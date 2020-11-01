@@ -50,6 +50,7 @@ async def startcmd(client, message):
 @VirusTotalAVBot.on_message(filters.document)
 def mediadetection(client, message):
     user = message.from_user.id
+    chat = message.chat.id
     max_file_size = 419430400  # Maximum file size for documents the bot will positively respond to.
     if not os.path.isdir('temp_download'):
         os.mkdir('temp_download/')
@@ -76,13 +77,17 @@ def mediadetection(client, message):
 
         return
 
-    msg = message.reply_text('Downloading your file...', quote=True)
-    download_path = client.download_media(message=message, file_name='temp_download/', progress=progressbar,
-                                          progress_args=("downloading", msg))
+    msg = message.reply_text('__Downloading file...__', quote=True)
+
+    if message.from_user.id != message.chat.id:
+        download_path = client.download_media(message=message, file_name='temp_download/')
+    else:
+        download_path = client.download_media(message=message, file_name='temp_download/', progress=progressbar,
+                                              progress_args=("downloading", msg))
+
     logger.info(f"Downloaded File: {download_path}")
 
     response = replytofile(download_path, msg)
-    print(response)
     msg.delete()  # Delete old reply, and send new one (for notification)
 
     filehash = findhash(download_path)
@@ -98,7 +103,7 @@ def mediadetection(client, message):
         bttn = InlineKeyboardMarkup([[InlineKeyboardButton(text="Detailed Analysis",
                                                            callback_data=f"detailed-{filehash}")]])
 
-    client.send_message(chat_id=user, text=response, parse_mode='markdown', disable_web_page_preview=True,
+    client.send_message(chat_id=chat, text=response, parse_mode='markdown', disable_web_page_preview=True,
                         reply_markup=bttn, reply_to_message_id=message.message_id)
 
     try:
