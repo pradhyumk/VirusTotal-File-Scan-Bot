@@ -2,7 +2,7 @@ from math import floor
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from .virustotal import replytofile, findhash, vthash, simplifiedview
-from .. import BOT_USERNAME, GROUP_INFO_MSGS, BOT_OWNER
+from .. import BOT_USERNAME, GROUP_INFO_MSGS, BOT_OWNER, MAX_FILE_SIZE
 from ..virustotalavbot import VirusTotalAVBot
 import logging
 import os
@@ -68,7 +68,7 @@ async def aboutcmd(client, message):
 def mediadetection(client, message):
     user = message.from_user.id
     chat = message.chat.id
-    max_file_size = 419430400  # Maximum file size for documents the bot will positively respond to.
+    max_file_size = MAX_FILE_SIZE  # Maximum file size for documents the bot will positively respond to.
     if not os.path.isdir('temp_download'):
         os.mkdir('temp_download/')
 
