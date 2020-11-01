@@ -2,6 +2,7 @@ from math import floor
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from .virustotal import replytofile, findhash, vthash, simplifiedview
+from .. import BOT_USERNAME, GROUP_INFO_MSGS
 from ..virustotalavbot import VirusTotalAVBot
 import logging
 import os
@@ -9,7 +10,8 @@ import os
 logger = logging.getLogger("info")
 
 START_TEXT = ("Hey there! This bot scans files in the cloud without using your bandwidth!\n\n"
-              "Some limitations:\nMaximum File Size - **200MB**\n\nBy using this bot, you adhere to VirusTotal's "
+              "Some limitations:\nMaximum File Size - **200MB**\n\nThis bot will only be active for"
+              " 22 days due to the Heroku free tier limitations\n\nBy using this bot, you adhere to VirusTotal's "
               "[Terms of Service](https://support.virustotal.com/hc/en-us/articles/115002145529-Terms-of-Service) "
               "and their [Privacy Policy](https://support.virustotal.com/hc/en-us/articles/115002168385-Privacy-Policy)"
               "\n\nDisclaimer: This bot is not affiliated with [VirusTotal](https://virustotal.com/) in any way, and "
@@ -17,26 +19,62 @@ START_TEXT = ("Hey there! This bot scans files in the cloud without using your b
 
 HELP_MSG = '''Forward a file to scan with VirusTotal.\n\nMaximum File Size: **200MB**'''
 
+disable_in_groups = GROUP_INFO_MSGS
 
-@VirusTotalAVBot.on_message(filters.command('help', prefixes="/"))
+
+@VirusTotalAVBot.on_message(filters.command('help', prefixes="/") | filters.regex(f'/help@{BOT_USERNAME}'))
 async def helpcmd(client, message):
+    """Method responds with the help message."""
+    # Some admins may believe /start and /help are spamming group chats, so they can be disabled.
+    if disable_in_groups and (message.from_user.id != message.chat.id):
+        return
+
     await message.reply_text(HELP_MSG)
 
 
-@VirusTotalAVBot.on_message(filters.command('start', prefixes="/"))
+@VirusTotalAVBot.on_message(filters.command('start', prefixes="/") | filters.regex(f'/start@{BOT_USERNAME}'))
 async def startcmd(client, message):
+    """Method responds with the start message"""
+
+    # Some admins may believe /start and /help are spamming group chats, so they can be disabled.
+
+    if disable_in_groups and (message.from_user.id != message.chat.id):
+        return
+
     instructions = [[InlineKeyboardButton(text="Instructions", callback_data="help")]]
-    await message.reply_sticker(sticker="CAADAQADCQADSQrhLZWMmF8vQqpqFgQ")
+    await message.reply_sticker(sticker="CAADAQADCQADSQrhLZWMmF8vQqpqFgQ", quote=False)
     await message.reply_text(START_TEXT, quote=False, disable_web_page_preview=True,
                              reply_markup=InlineKeyboardMarkup(instructions))
 
 
 @VirusTotalAVBot.on_message(filters.document)
 def mediadetection(client, message):
-    user = message.chat.id
-    
+    user = message.from_user.id
+    max_file_size = 419430400  # Maximum file size for documents the bot will positively respond to.
     if not os.path.isdir('temp_download'):
         os.mkdir('temp_download/')
+
+    file_size = message.document.file_size
+
+    if file_size > max_file_size:
+
+        if message.from_user.id != message.chat.id:
+            logger.info(f'User (ID: {user}) sent a file ({round(file_size / 1048576, 2)}MB) larger than the defined maximum'
+                        f' file size ({round(max_file_size / 1048576, 2)}MB) in a group chat (ID: {message.chat.id}).')
+            message.reply_text(f'Sorry, but this file is too large for us to process. Some engines may not process'
+                               f' large files properly such as archives or even timeout after a certain period of time.'
+                               f'\n\nBe cautious when downloading the file and upload smaller files inside the file'
+                               f' if it is an archive.')
+
+        else:
+            logger.info(f'User ({user}) sent a file larger than the defined maximum file size'
+                        f' ({round(max_file_size / 1048576, 2)}MB).')
+            message.reply_text(f'Sorry, but this file is too large for us to process. Try sending a file under '
+                               f'**{round(max_file_size / 1048576, 2)} MB**. \n\nOn a side note, some engines '
+                               f'may not process large files such as archives or even timeout after a certain period of'
+                               f' time. ')
+
+        return
 
     msg = message.reply_text('Downloading your file...', quote=True)
     download_path = client.download_media(message=message, file_name='temp_download/', progress=progressbar,
