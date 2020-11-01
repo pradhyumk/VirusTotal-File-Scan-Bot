@@ -2,7 +2,7 @@ from math import floor
 from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from .virustotal import replytofile, findhash, vthash, simplifiedview
-from .. import BOT_USERNAME, GROUP_INFO_MSGS
+from .. import BOT_USERNAME, GROUP_INFO_MSGS, BOT_OWNER
 from ..virustotalavbot import VirusTotalAVBot
 import logging
 import os
@@ -44,6 +44,23 @@ async def startcmd(client, message):
     instructions = [[InlineKeyboardButton(text="Instructions", callback_data="help")]]
     await message.reply_sticker(sticker="CAADAQADCQADSQrhLZWMmF8vQqpqFgQ", quote=False)
     await message.reply_text(START_TEXT, quote=False, disable_web_page_preview=True,
+                             reply_markup=InlineKeyboardMarkup(instructions))
+
+
+@VirusTotalAVBot.on_message(filters.command('about', prefixes="/") | filters.regex(f'/about@{BOT_USERNAME}'))
+async def aboutcmd(client, message):
+    """Method responds with the about message"""
+
+    MSG = "This bot is a research project made possible by VirusTotal, an Alphabet service which aggregates file scan" \
+          " results various antivirus engines.\n\nInformation such as file hashes and scan results may be logged for" \
+          f" academic research and debugging purposes only.\n\nDisclosure: This bot was forked by {BOT_OWNER} and the" \
+          f" original source is linked below. You may create an issue in the original repository if there are any" \
+          f" bugs with the source."
+
+    instructions = [[InlineKeyboardButton(text="Original Bot Repository",
+                                          url="https://github.com/pradhyumk/VirusTotal-File-Scan-Bot")]]
+
+    await message.reply_text(MSG, quote=False, disable_web_page_preview=True,
                              reply_markup=InlineKeyboardMarkup(instructions))
 
 
