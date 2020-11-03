@@ -10,8 +10,7 @@ import os
 logger = logging.getLogger("info")
 
 START_TEXT = ("Hey there! This bot scans files in the cloud without using your bandwidth!\n\n"
-              "Some limitations:\nMaximum File Size - **200MB**\n\nThis bot will only be active for"
-              " 22 days due to the Heroku free tier limitations\n\nBy using this bot, you adhere to VirusTotal's "
+              "Some limitations:\nMaximum File Size - **200MB**\n\nBy using this bot, you agree to adhere to VirusTotal's "
               "[Terms of Service](https://support.virustotal.com/hc/en-us/articles/115002145529-Terms-of-Service) "
               "and their [Privacy Policy](https://support.virustotal.com/hc/en-us/articles/115002168385-Privacy-Policy)"
               "\n\nDisclaimer: This bot is not affiliated with [VirusTotal](https://virustotal.com/) in any way, and "
