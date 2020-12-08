@@ -7,4 +7,6 @@ Malware poses a large threat to the digital community and it's deceitful nature 
 
 I originally designed this bot for Telegram users to make proper judgement when downloading documents from unknown sources. VirusTotal, an Alphabet service, provides cloud malware scanning to users free of charge, for second judgement whether a file is safe to use. 
 
-While bringing this project into fruition, it has encouraged me to research the kinds of malware floating on social media and how the development of malware has changed since the introduction of social media.
+While bringing this project into fruition, it has encouraged me to research the kinds of malware floating on social media and how the development of malware has changed since the introduction of social media.  
+  
+Disclaimer: This project was created as a proof of concept for doing research in this field. The repository owner does not host or run this Telegram bot. If you would like to assist with this project, you may create a pull request.
